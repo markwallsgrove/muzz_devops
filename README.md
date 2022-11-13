@@ -46,6 +46,9 @@ alias docker="echo 'Got permission denied while trying to connect to the Docker 
 
 The same trap can also be found for the `root` users. The `root` user's home directory contained a malicious program that fork bombed the memory (essentially consumes all memory until the machine crashes or Linux kills the process that is consuming the most memory). Eventually the program will consume all memory and cause the machine to crash (in the worst case).
 
+For both users (ubuntu, root) I commented out all of the aliases. Once I had access to docker I made sure there was no services running which could have been using the files to avoid corruption. 
+
+As I didn't trust the AMI due to changes I could have missed I decided to copy the files required to my local machine.
 # Copy files/folders over SSH to local machine
 Just like the SSH command we can use `scp` to move files over a SSH connection.
 - `-i ~/.ssh/challenge.pem ` private key to use
