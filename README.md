@@ -18,13 +18,13 @@ sudo systemctl restart docker
 ```
 
 # Issue
-Was eventually booted out of the machine with the following error:
+I was eventually booted out of the machine with the following error:
 ```sh
 [   28.302752] Out of memory: Kill process 1789 (memory_munch) score 251 or sacrifice child
 [   28.311138] Killed process 1789 (memory_munch) total-vm:1074260kB, anon-rss:259796kB, file-rss:1032kB
 ```
 
-Eventually after getting back into the machine found the culprit:
+Eventually after getting back into the machine I found the culprit:
 ```sh
 > dmsg
 ...
@@ -33,9 +33,9 @@ root      1803  3.0  8.2 328544 83904 ?        S    10:42   0:00 /root/memory_mu
 root      1804  3.0  8.2 328404 83908 ?        S    10:42   0:00 /root/memory_munch
 ```
 
-Hunted down the process to the `root` user's home directory. Killed all `memory_munch` processes to provide time. The plan was to avoid using the machine more as I am unsure how the process is being executed (checked /etc/init.d, /etc/profile, bashrc, etc) and what affects it has.
+I hunted down the process to the `root` user's home directory. Killed all `memory_munch` processes to provide time. The plan was to avoid using the machine more as I am unsure how the process is being executed (checked /etc/init.d, /etc/profile, bashrc, etc) and what effect it has.
 
-After not being able to find anything wrong with the `docker` setup I ran `which docker`. This exposed that the `docker` command had been overwritten by a alias. Eventually I found the alias within `~/.bash_aliases`:
+After not being able to find anything wrong with the `docker` setup I ran `which docker`. This exposed that the `docker` command had been overwritten by an alias. I then found the alias within `~/.bash_aliases`:
 ```sh
 alias apt="echo 'Error: Unable to read package list'"
 alias apt-get="echo 'Error: Unable to read package list'"
@@ -46,7 +46,7 @@ alias docker="echo 'Got permission denied while trying to connect to the Docker 
 
 The same trap can also be found for the `root` users. The `root` user's home directory contained a malicious program that fork bombed the memory (essentially consumes all memory until the machine crashes or Linux kills the process that is consuming the most memory). Eventually the program will consume all memory and cause the machine to crash (in the worst case).
 
-For both users (ubuntu, root) I commented out all of the aliases. Once I had access to docker I made sure there was no services running which could have been using the files to avoid corruption. 
+For both users (`ubuntu`, `root`) I commented out all of the aliases. Once I had access to docker I made sure there were no services running which could have been using the files to avoid corruption. 
 
 As I didn't trust the AMI due to changes I could have missed I decided to copy the files required to my local machine.
 # Copy files/folders over SSH to local machine
